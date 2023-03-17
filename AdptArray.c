@@ -19,8 +19,8 @@ PAdptArray CreateAdptArray(COPY_FUNC copyFunc, DEL_FUNC delFunc, PRINT_FUNC prin
     if(adptArray == NULL) //If memory allocation failed
         return NULL;
 
-    adptArray->elementArr = NULL;
-    adptArray->arrSize = 0;
+    adptArray->elementArr = (PElement) calloc(1, sizeof (PElement));
+    adptArray->arrSize = 1;
 
     adptArray->delFunc = delFunc;
     adptArray->copyFunc = copyFunc;
@@ -34,8 +34,10 @@ void DeleteAdptArray(PAdptArray pAdptArray){
         return;
 
     for(int i = 0; i < pAdptArray->arrSize; i++) {
-        pAdptArray->delFunc(pAdptArray->elementArr[i]);
-        pAdptArray->elementArr[i] = NULL;
+        if(pAdptArray->elementArr[i] != NULL){
+            pAdptArray->delFunc(pAdptArray->elementArr[i]);
+            //pAdptArray->elementArr[i] = NULL;
+        }
     }
 
     pAdptArray ->arrSize = 0;
@@ -51,6 +53,8 @@ Result SetAdptArrayAt(PAdptArray pAdptArray, int index, PElement pElement){
 
     if(index >= pAdptArray->arrSize){
         pAdptArray->elementArr = (PElement)realloc(pAdptArray->elementArr, (index + 1) * sizeof(PElement));
+        if(pAdptArray->elementArr == NULL)
+            return FAIL;
     }
     else{ //index < pAdptArray->arrSize
         PElement originalElement = pAdptArray->elementArr[index];
@@ -66,10 +70,10 @@ Result SetAdptArrayAt(PAdptArray pAdptArray, int index, PElement pElement){
 }
 
 PElement GetAdptArrayAt(PAdptArray pAdptArray, int index){
-    if(pAdptArray == NULL || index < 0 || index >= pAdptArray->arrSize)
+    if(pAdptArray == NULL || index < 0 || index >= pAdptArray->arrSize || pAdptArray->elementArr[index] == NULL)
         return NULL;
 
-    return pAdptArray->elementArr[index];
+    return pAdptArray->copyFunc(pAdptArray->elementArr[index]);
 }
 
 int GetAdptArraySize(PAdptArray pAdptArray){
