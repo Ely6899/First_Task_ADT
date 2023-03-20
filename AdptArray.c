@@ -13,7 +13,7 @@ struct AdptArray_{
     DEL_FUNC delFunc;
     COPY_FUNC copyFunc;
     PRINT_FUNC printFunc;
-};
+} *pAdptArray;
 
 PAdptArray CreateAdptArray(COPY_FUNC copyFunc, DEL_FUNC delFunc, PRINT_FUNC printFunc){
     PAdptArray adptArray = (PAdptArray) malloc(sizeof (struct AdptArray_));
@@ -23,8 +23,6 @@ PAdptArray CreateAdptArray(COPY_FUNC copyFunc, DEL_FUNC delFunc, PRINT_FUNC prin
     //Empty array initialization
     adptArray->elementArr = NULL;
     adptArray->arrSize = 0;
-    /*if(adptArray->elementArr == NULL)
-        return NULL;*/
 
     //Initialize functions
     adptArray->delFunc = delFunc;
@@ -65,14 +63,10 @@ Result SetAdptArrayAt(PAdptArray pAdptArray, int index, PElement pElement){
         memcpy(newArr, pAdptArray->elementArr, pAdptArray->arrSize * sizeof(PElement));
         free(pAdptArray->elementArr);
         pAdptArray->elementArr = newArr;
-
-        /*pAdptArray->elementArr = (PElement)realloc(pAdptArray->elementArr, (index + 1) * sizeof(PElement));
-        if(pAdptArray->elementArr == NULL)
-            return FAIL;*/
     }
     else{ //index < pAdptArray->arrSize
         PElement originalElement = pAdptArray->elementArr[index]; //Initialized for better readability.
-        if(originalElement != NULL){
+        if(originalElement != NULL){ //Apply delete function for each non-null element in the array.
             pAdptArray->delFunc(originalElement);
         }
     }
